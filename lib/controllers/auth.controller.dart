@@ -1,40 +1,53 @@
 import 'package:get/get.dart';
-import 'package:wallet_app/controllers/main.controller.dart';
-import 'package:wallet_app/models/user.model.dart';
-import 'package:wallet_app/pages/home.page.dart';
-import 'package:wallet_app/pages/start.page.dart';
-import 'package:wallet_app/pkgs/request.pkg.dart';
-import 'package:wallet_app/views/dialogs/loading_dialog.dart';
-import 'package:wallet_app/views/dialogs/message_dialog.dart';
 
+import '../models/user.model.dart';
+import '../pages/home.page.dart';
+import '../pages/start.page.dart';
+import '../pkgs/request.pkg.dart';
 import '../pkgs/response.pkg.dart';
+import '../pkgs/route.pkg.dart';
+import '../views/dialogs/loading_dialog.dart';
+import '../views/dialogs/message_dialog.dart';
+import 'main.controller.dart';
 
 class AuthController extends GetxController {
   late final MainController mainController;
 
-  UserModel? currentUser;
+  Rxn<UserModel?> currentUser = Rxn();
+
+  RxBool isOffline = true.obs;
 
   AuthController() {
     mainController = Get.find<MainController>();
   }
 
-  Future<UserModel?> getUser() async {
+  Future getUser() async {
     ResponsePkg<Map?> response = await RequestPkg.send<Map?>("user", "get");
     if (response.success && response.value != null) {
       mainController.storageDatabase.collection("user").set(response.value);
-      currentUser = UserModel.fromJson(response.value!);
-      mainController.changeMode(uiThemeMode: currentUser!.mode);
+      currentUser(UserModel.fromJson(response.value!));
+    } else {
+      currentUser(UserModel.fromCash());
     }
-    return null;
+    // if (currentUser.value != null) {
+    //   mainController.changeMode(uiThemeMode: currentUser.value!.mode);
+    // }
   }
 
   Future<bool> checkAuth() async {
     await getUser();
-    return currentUser != null;
+    if (currentUser.value != null) {
+      mainController.initControllers();
+      Future.delayed(const Duration(seconds: 1));
+      RoutePkg.to(HomePage.routeName);
+    } else {
+      RoutePkg.to(StartPage.routeName);
+    }
+    return currentUser.value != null;
   }
 
   Future login(String email, String password) async {
-    Get.dialog(LoadingDialog());
+    Get.dialog(const LoadingDialog(), barrierDismissible: false);
     if (email.isEmpty && password.isEmpty) {
       Get.back();
       return await Get.dialog(
@@ -58,10 +71,9 @@ class AuthController extends GetxController {
       mainController.storageDatabase
           .collection("settings")
           .set({"token": response.value});
-      await Future.delayed(const Duration(milliseconds: 100));
       await getUser();
-      currentUser!.token = response.value;
-      Get.to(() => const HomePage(), popGesture: false);
+      Future.delayed(const Duration(seconds: 1));
+      RoutePkg.to(HomePage.routeName, clearHeaders: true);
     } else if (!email.isEmail) {
       Get.back();
       return await Get.dialog(
@@ -87,7 +99,7 @@ class AuthController extends GetxController {
     String password,
     String confirm,
   ) async {
-    Get.dialog(LoadingDialog());
+    Get.dialog(const LoadingDialog(), barrierDismissible: false);
     if (username.isEmpty &&
         email.isEmpty &&
         password.isEmpty &&
@@ -131,10 +143,9 @@ class AuthController extends GetxController {
       mainController.storageDatabase
           .collection("settings")
           .set({"token": response.value});
-      await Future.delayed(const Duration(milliseconds: 100));
       await getUser();
-      currentUser!.token = response.value;
-      Get.to(() => const HomePage(), popGesture: false);
+      Future.delayed(const Duration(seconds: 1));
+      RoutePkg.to(HomePage.routeName, clearHeaders: true);
     } else {
       Get.back();
       Get.dialog(
@@ -147,10 +158,10 @@ class AuthController extends GetxController {
   }
 
   Future logout() async {
-    Get.dialog(LoadingDialog());
+    Get.dialog(const LoadingDialog(), barrierDismissible: false);
     await Future.delayed(const Duration(seconds: 1));
-    await mainController.reload(clearStorage: true);
+    await mainController.reload(clear: true);
     await RequestPkg.send("auth/logout", "get");
-    Get.to(() => const StartPage(), popGesture: false);
+    RoutePkg.to(StartPage.routeName, clearHeaders: true);
   }
 }

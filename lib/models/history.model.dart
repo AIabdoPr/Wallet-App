@@ -1,14 +1,16 @@
 import 'package:get/get.dart';
-import 'package:wallet_app/controllers/main.controller.dart';
 
+import '../Consts/history.mode.dart';
+import '../controllers/main.controller.dart';
 import 'user.model.dart';
 
 class HistoryModel {
   final int id;
-  final String action;
+  final HistoryMode action;
   final UserModel user, target;
   final double amount;
-  final DateTime dateTime;
+  final String reference;
+  final DateTime createdAt;
 
   HistoryModel(
     this.id,
@@ -16,7 +18,8 @@ class HistoryModel {
     this.user,
     this.target,
     this.amount,
-    this.dateTime,
+    this.reference,
+    this.createdAt,
   );
 
   static HistoryModel? fromCash(int id) {
@@ -38,16 +41,12 @@ class HistoryModel {
       : id = historyData["id"],
         user = UserModel.fromJson(historyData["user"]),
         target = UserModel.fromJson(historyData["target"]),
-        action = historyData["action"],
+        action = historyData["action"] == "recive"
+            ? HistoryMode.recive
+            : HistoryMode.send,
         amount = double.parse(historyData["amount"].toString()),
-        dateTime = historyData["date_time"];
-
-  Map<String, dynamic> toJson() => <String, dynamic>{
-        'id': id,
-        'user': user.toJson(),
-        'target': target.toJson(),
-        'action': action,
-        'amount': amount,
-        'date_time': dateTime,
-      };
+        reference = historyData["reference"] ?? "",
+        createdAt = DateTime.fromMillisecondsSinceEpoch(
+          int.tryParse(historyData["created_at"].toString()) ?? 0,
+        );
 }

@@ -1,21 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
-import 'package:wallet_app/controllers/auth.controller.dart';
-import 'package:wallet_app/pages/login.page.dart';
 
+import '../controllers/auth.controller.dart';
+import '../pkgs/route.pkg.dart';
 import '../values.dart';
 import '../views/button.view.dart';
 import '../views/text_edit.view.dart';
+import 'login.page.dart';
+import 'page.dart' as page;
 
-class SignupPage extends StatefulWidget {
-  const SignupPage({Key? key}) : super(key: key);
+class SignupPage extends page.Page {
+  static const String routeName = "/signup";
+  SignupPage({Key? key}) : super(key: key);
 
-  @override
-  State<SignupPage> createState() => _SignupPageState();
-}
-
-class _SignupPageState extends State<SignupPage> {
   late AuthController authController;
 
   late TextEditingController usernameController;
@@ -25,7 +23,6 @@ class _SignupPageState extends State<SignupPage> {
 
   @override
   void initState() {
-    super.initState();
     authController = AuthController();
     usernameController = TextEditingController();
     emailController = TextEditingController();
@@ -34,8 +31,7 @@ class _SignupPageState extends State<SignupPage> {
   }
 
   @override
-  void deactivate() {
-    super.deactivate();
+  void dispose() {
     authController.dispose();
     usernameController.dispose();
     emailController.dispose();
@@ -44,7 +40,7 @@ class _SignupPageState extends State<SignupPage> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget buildBody(BuildContext context) {
     return Obx(
       () => Scaffold(
         backgroundColor: UIThemeColors.bg,
@@ -105,7 +101,7 @@ class _SignupPageState extends State<SignupPage> {
                   text: "Signup",
                 ),
                 TextButton(
-                  onPressed: () => Get.to(() => const LoginPage()),
+                  onPressed: () => RoutePkg.to(LoginPage.routeName),
                   child: const Text("Login"),
                 ),
               ],

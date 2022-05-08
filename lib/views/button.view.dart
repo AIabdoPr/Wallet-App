@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import '../pkgs/main.pkg.dart';
+
+import '../pkgs/size_config.pkg.dart';
 import '../values.dart';
 
 class ButtonView extends StatelessWidget {
@@ -138,13 +139,18 @@ class CirclerButton extends StatelessWidget {
     required Function()? onPressed,
     Color? iconColor,
     double size = 50,
+    double? iconSize,
     Color? backgroundColor,
     Color borderColor = Colors.transparent,
     EdgeInsets? margin,
     EdgeInsets padding = const EdgeInsets.all(8),
   }) {
     return CirclerButton(
-      child: Icon(icon, color: iconColor ?? UIThemeColors.icon),
+      child: Icon(
+        icon,
+        color: iconColor ?? UIThemeColors.icon,
+        size: iconSize,
+      ),
       onPressed: onPressed,
       size: size,
       backgroundColor: backgroundColor ?? UIThemeColors.iconBg,

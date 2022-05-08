@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
 
-import '../pkgs/main.pkg.dart';
+import '../pkgs/size_config.pkg.dart';
 import '../values.dart';
 import 'button.view.dart';
 

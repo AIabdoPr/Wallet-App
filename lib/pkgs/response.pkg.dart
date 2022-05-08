@@ -6,8 +6,9 @@ class ResponsePkg<T> {
   final bool success;
   final String message;
   final T? value;
+  final String? body;
 
-  ResponsePkg(this.success, this.message, {this.value});
+  ResponsePkg(this.success, this.message, {this.value, this.body});
 
   static ResponsePkg<T> fromHttpResponse<T>(
     http.Response response, {
@@ -48,18 +49,21 @@ class ResponsePkg<T> {
         return ResponsePkg<T>(
           responseData["success"] ?? false,
           responseData["message"] ?? "",
+          body: response.body,
         );
       } else if (values.length == 1) {
         return ResponsePkg(
           responseData["success"] ?? false,
           responseData["message"] ?? "",
           value: values[values.keys.first],
+          body: response.body,
         );
       } else {
         return ResponsePkg(
           responseData["success"] ?? false,
           responseData["message"] ?? "",
           value: values as T,
+          body: response.body,
         );
       }
     } catch (e) {
@@ -70,7 +74,7 @@ class ResponsePkg<T> {
       );
       print("ERROR:" + e.toString());
       print("body: $body...");
-      return ResponsePkg(false, "body: $body...");
+      return ResponsePkg(false, "body: $body...", body: response.body);
     }
   }
 }

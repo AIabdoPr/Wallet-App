@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
-import 'package:wallet_app/controllers/history.controller.dart';
-import 'package:wallet_app/views/history_item.view.dart';
 
-import '../models/history.model.dart';
-import '../modes/history.mode.dart';
-import '../pkgs/main.pkg.dart';
+import '../Consts/history.mode.dart';
+import '../controllers/history.controller.dart';
+import '../pages/add_history.page.dart';
+import '../pkgs/route.pkg.dart';
+import '../pkgs/size_config.pkg.dart';
 import '../values.dart';
+import '../views/button.view.dart';
+import '../views/history_item.view.dart';
 
 class HistoryTab extends StatefulWidget {
   const HistoryTab({Key? key}) : super(key: key);
@@ -30,39 +32,44 @@ class _HistoryTabState extends State<HistoryTab> {
     SizeConfig sizeConfig = SizeConfig(context);
     return Obx(
       () => Material(
-        color: UIThemeColors.bg,
         elevation: 0,
-        child: Flex(
-          direction: Axis.vertical,
-          children: [
-            Gap(sizeConfig.proportionateScreenHeight(40)),
-            Text(
-              "History",
-              style: TextStyle(
-                color: UIThemeColors.text,
-                fontSize: 34,
-                fontFamily: Consts.fontFamily,
-                fontWeight: FontWeight.bold,
+        child: Scaffold(
+          backgroundColor: UIThemeColors.bg,
+          floatingActionButton: CirclerButton.icon(
+            padding: const EdgeInsets.all(10),
+            icon: Icons.add,
+            iconSize: 50,
+            onPressed: () {
+              RoutePkg.to(AddHistory.routeName);
+            },
+          ),
+          body: Flex(
+            direction: Axis.vertical,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Gap(sizeConfig.proportionateScreenHeight(40)),
+              Text(
+                "History",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: UIThemeColors.text,
+                  fontSize: 34,
+                  fontFamily: Consts.fontFamily,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-            ),
-            const Gap(20),
-            Flexible(
-              child: StreamBuilder<Map<HistoryMode, List<HistoryModel>>>(
-                  stream: historyController.historyItems.stream,
-                  builder: (context, snapshot) {
-                    List<HistoryModel> items = [];
-                    if (snapshot.hasData) {
-                      items = snapshot.data![HistoryMode.all]!;
-                    }
-                    return ListView.builder(
-                      itemCount: items.length,
-                      itemBuilder: (context, index) => HistoryItemView(
-                        items.elementAt(index),
-                      ),
-                    );
-                  }),
-            )
-          ],
+              Flexible(
+                child: ListView.builder(
+                  itemCount:
+                      historyController.historyItems[HistoryMode.all]!.length,
+                  itemBuilder: (context, index) => HistoryItemView(
+                    historyController.historyItems[HistoryMode.all]!
+                        .elementAt(index),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

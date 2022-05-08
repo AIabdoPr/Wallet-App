@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
-import 'package:wallet_app/controllers/auth.controller.dart';
-import 'package:wallet_app/controllers/main.controller.dart';
-import 'package:wallet_app/models/user.model.dart';
-import 'package:wallet_app/pkgs/assets.pkg.dart';
-import 'package:wallet_app/views/menu_item.view.dart';
-import 'package:wallet_app/views/user_image.vew.dart';
 
-import '../pkgs/main.pkg.dart';
+import '../controllers/auth.controller.dart';
+import '../controllers/main.controller.dart';
+import '../pages/settings.page.dart';
+import '../pkgs/assets.pkg.dart';
+import '../pkgs/route.pkg.dart';
+import '../pkgs/size_config.pkg.dart';
 import '../values.dart';
+import '../views/menu_item.view.dart';
+import '../views/user_image.vew.dart';
 
 class ProfileTab extends StatefulWidget {
   const ProfileTab({Key? key}) : super(key: key);
@@ -19,18 +20,17 @@ class ProfileTab extends StatefulWidget {
 }
 
 class _ProfileTabState extends State<ProfileTab> {
-  late UserModel user;
+  late MainController mainController;
 
   @override
   void initState() {
     super.initState();
-    user = Get.find<MainController>().user!;
+    mainController = Get.find<MainController>();
   }
 
   @override
   Widget build(BuildContext context) {
     SizeConfig sizeConfig = SizeConfig(context);
-    MainController mainController = Get.find<MainController>();
     return Obx(
       () => Material(
         color: UIThemeColors.bg,
@@ -46,7 +46,7 @@ class _ProfileTabState extends State<ProfileTab> {
               backgroundColor: Colors.transparent,
             ),
             Text(
-              user.username,
+              mainController.user!.username,
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: UIThemeColors.text,
@@ -55,7 +55,7 @@ class _ProfileTabState extends State<ProfileTab> {
                 fontFamily: Consts.fontFamily,
               ),
             ),
-            Gap(20),
+            const Gap(20),
             MenuItemView(
               icon: UIIcons.chartBold,
               title: "Chart",
@@ -69,7 +69,9 @@ class _ProfileTabState extends State<ProfileTab> {
             MenuItemView(
               icon: UIIcons.settingBold,
               title: "Sttings",
-              onPressed: () {},
+              onPressed: () {
+                RoutePkg.to(SettingsPage.routeName);
+              },
             ),
             MenuItemView(
               icon: UIIcons.logoutBold,

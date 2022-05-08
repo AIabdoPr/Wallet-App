@@ -1,37 +1,40 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
-import 'package:wallet_app/controllers/history.controller.dart';
-import 'package:wallet_app/controllers/users.controller.dart';
-import 'package:wallet_app/tabs/history.tab.dart';
-import 'package:wallet_app/tabs/home.tab.dart';
-import 'package:wallet_app/tabs/profile.tab.dart';
-import 'package:wallet_app/tabs/users.tab.dart';
-import 'package:wallet_app/values.dart';
 
-class HomePage extends StatefulWidget {
-  const HomePage({Key? key}) : super(key: key);
+import '../tabs/history.tab.dart';
+import '../tabs/home.tab.dart';
+import '../tabs/profile.tab.dart';
+import '../tabs/users.tab.dart';
+import '../values.dart';
+import '../views/internet_status.view.dart';
+import 'page.dart' as page;
 
-  @override
-  State<HomePage> createState() => _HomePageState();
-}
+class HomePage extends page.Page {
+  static const String routeName = "/home";
 
-class _HomePageState extends State<HomePage> {
+  HomePage({Key? key}) : super(key: key);
+
   late PersistentTabController tabController;
-
-  List<Widget> tabs = <Widget>[
-    const HomeTab(),
-    const UsersTab(),
-    const HistoryTab(),
-    const ProfileTab(),
-  ];
 
   @override
   void initState() {
-    super.initState();
     tabController = PersistentTabController(initialIndex: 0);
-    Get.put(UsersController());
-    Get.put(HistoryController());
+  }
+
+  Widget _buildTab(Widget tab) {
+    return Obx(
+      () => Flex(
+        direction: Axis.vertical,
+        children: [
+          Flexible(child: SizedBox.expand(child: tab)),
+          Container(
+            height: 25,
+            color: UIThemeColors.bg,
+          ),
+        ],
+      ),
+    );
   }
 
   PersistentBottomNavBarItem _buildNavItem(IconData icon, String name) {
@@ -44,36 +47,48 @@ class _HomePageState extends State<HomePage> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget buildBody(BuildContext context) {
+    List<Widget> tabs = <Widget>[
+      _buildTab(const HomeTab()),
+      _buildTab(const UsersTab()),
+      _buildTab(const HistoryTab()),
+      _buildTab(const ProfileTab()),
+    ];
     return Obx(
-      () => PersistentTabView(
-        context,
-        controller: tabController,
-        screens: tabs,
-        items: [
-          _buildNavItem(UIIcons.homeBold, 'Home'),
-          _buildNavItem(UIIcons.user1Bold, 'Users'),
-          _buildNavItem(UIIcons.chartBold, 'History'),
-          _buildNavItem(UIIcons.profileBold, 'Profile'),
-        ],
-        backgroundColor: UIThemeColors.accent,
-        resizeToAvoidBottomInset: true,
-        itemAnimationProperties: const ItemAnimationProperties(
-          duration: Duration(milliseconds: 200),
-          curve: Curves.ease,
-        ),
-        decoration: const NavBarDecoration(
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(25),
-            topRight: Radius.circular(25),
+      () => Stack(
+        children: [
+          PersistentTabView(
+            context,
+            controller: tabController,
+            screens: tabs,
+            navBarHeight: 65,
+            items: [
+              _buildNavItem(UIIcons.homeBold, 'Home'),
+              _buildNavItem(UIIcons.user1Bold, 'Users'),
+              _buildNavItem(UIIcons.chartBold, 'History'),
+              _buildNavItem(UIIcons.profileBold, 'Profile'),
+            ],
+            backgroundColor: UIThemeColors.accent,
+            resizeToAvoidBottomInset: true,
+            itemAnimationProperties: const ItemAnimationProperties(
+              duration: Duration(milliseconds: 200),
+              curve: Curves.ease,
+            ),
+            decoration: const NavBarDecoration(
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(25),
+                topRight: Radius.circular(25),
+              ),
+            ),
+            screenTransitionAnimation: const ScreenTransitionAnimation(
+              animateTabTransition: true,
+              curve: Curves.ease,
+              duration: Duration(milliseconds: 200),
+            ),
+            navBarStyle: NavBarStyle.style3,
           ),
-        ),
-        screenTransitionAnimation: const ScreenTransitionAnimation(
-          animateTabTransition: true,
-          curve: Curves.ease,
-          duration: Duration(milliseconds: 200),
-        ),
-        navBarStyle: NavBarStyle.style3,
+          const InternetStatus(),
+        ],
       ),
     );
   }

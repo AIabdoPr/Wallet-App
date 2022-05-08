@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
-import 'package:get/get.dart';
-import 'package:wallet_app/models/user.model.dart';
-import '../values.dart';
-import 'package:wallet_app/views/button.view.dart';
 
+import '../models/user.model.dart';
+import '../pkgs/route.pkg.dart';
+import '../values.dart';
 import '../pages/user.page.dart';
+import 'button.view.dart';
 
 class UserItemView extends StatelessWidget {
   final UserModel user;
@@ -18,11 +18,7 @@ class UserItemView extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 20),
       backgroundColor: UIColors.primary.withOpacity(0.4),
       onPressed: () {
-        Get.to(
-          () => UserPage(user: user),
-          transition: Transition.size,
-          duration: const Duration(milliseconds: 350),
-        );
+        RoutePkg.to(UserPage.routeName, arguments: user);
       },
       child: Flex(
         direction: Axis.horizontal,

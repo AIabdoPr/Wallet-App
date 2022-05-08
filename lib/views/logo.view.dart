@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
-import 'package:wallet_app/pkgs/assets.pkg.dart';
+
+import '../pkgs/assets.pkg.dart';
 import '../values.dart';
 
 class LogoView extends StatelessWidget {

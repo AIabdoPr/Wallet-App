@@ -1,27 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:wallet_app/controllers/main.controller.dart';
-import 'package:wallet_app/views/logo.view.dart';
 
+import '../controllers/main.controller.dart';
 import '../values.dart';
+import '../views/logo.view.dart';
+import 'page.dart' as page;
 
-class LoadingPage extends StatefulWidget {
-  const LoadingPage({Key? key}) : super(key: key);
+class LoadingPage extends page.Page {
+  static const String routeName = "/loading";
 
-  @override
-  State<LoadingPage> createState() => _LoadingPageState();
-}
-
-class _LoadingPageState extends State<LoadingPage> {
-  late MainController mainController;
-  @override
-  void initState() {
-    super.initState();
-    mainController = Get.put<MainController>(MainController());
-  }
+  LoadingPage({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget buildBody(BuildContext context) {
+    Get.find<MainController>()
+        .loading(ip: ModalRoute.of(context)!.settings.arguments as String?);
     return Obx(
       () => Scaffold(
         backgroundColor: UIThemeColors.bg,

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
-import 'package:wallet_app/views/button.view.dart';
+
 import '../values.dart';
+import 'button.view.dart';
 
 class MenuItemView extends StatelessWidget {
   final IconData icon;

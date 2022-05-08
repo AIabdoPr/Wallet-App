@@ -1,60 +1,51 @@
-import 'package:flutter/foundation.dart';
+import 'dart:io';
+
 import 'package:get/get.dart';
 import 'package:socket_io_client/socket_io_client.dart';
-import 'package:wallet_app/controllers/main.controller.dart';
 
+import '../pkgs/request.pkg.dart';
 import '../values.dart';
+import 'main.controller.dart';
 
 class SocketController extends GetxController {
-  final MainController mainController;
-
-  SocketController(this.mainController);
-
+  late MainController mainController;
   late Socket socket;
 
-  bool _inited = false;
   RxBool connected = false.obs;
-  RxString connectionErrorMessage = "".obs;
+  RxString connectionErrorMessage = "no error".obs;
 
-  @override
-  onReady() {
-    super.onReady();
-    if (!_inited) init();
-  }
-
-  Future init() async {
-    OptionBuilder optionBuilder = OptionBuilder();
-    if (kIsWeb) optionBuilder.setTransports(["websocket"]);
-    optionBuilder
-        .disableAutoConnect()
-        .enableForceNew()
-        .enableMultiplex()
-        .setQuery({
+  SocketController() {
+    socket = io(Consts.serverUrl, {
+      'transports': ["websocket"],
+      'autoConnect': false,
       'allowEIO3': true,
-      "query": "token=" + (mainController.user!.token ?? ""),
+      'query': "token=${RequestPkg.token}",
     });
-    Socket socket = io(
-      Consts.serverUrl,
-      optionBuilder.build(),
-    );
     socket.connect();
     socket.onConnect((data) {
-      print("connected");
       connected(socket.connected);
+      update();
     });
     socket.onDisconnect((data) {
       connected(socket.connected);
+      update();
     });
     socket.onConnectError((error) {
-      print(error);
-      connectionErrorMessage(error.toString());
-      // Get.dialog(
-      //   MessageDialog(
-      //     title: "SocketError",
-      //     message: error.toString(),
-      //   ),
-      // );
+      connected(socket.connected);
+      switch (error.runtimeType) {
+        case SocketException:
+          connectionErrorMessage("Socket error connection");
+          break;
+        default:
+          connectionErrorMessage(error.toString());
+      }
+      update();
     });
-    _inited = true;
+  }
+
+  disConnecting() async {
+    socket.clearListeners();
+    socket.disconnect();
+    socket.close();
   }
 }

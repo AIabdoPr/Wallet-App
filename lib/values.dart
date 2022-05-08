@@ -1,19 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:wallet_app/controllers/main.controller.dart';
 
-import 'modes/ui_theme.mode.dart';
+import 'Consts/ui_theme.mode.dart';
+import 'controllers/main.controller.dart';
 
 class Consts {
   static const String appName = "Wallet App";
   static const String fontFamily = "DMSans";
-  static const String serverIP = "192.168.1.106";
+  static const String serverIP = "41.105.173.4";
   static const String serverPort = "5000";
   static const String serverUrl = "http://$serverIP:$serverPort";
-
   static const String apiUrl = "$serverUrl/api";
   static const String authUrl = "$apiUrl/auth";
-  // static const String socketUrl = "http://localhost:3000";
 }
 
 class UIColors {

@@ -4,6 +4,9 @@ A new Flutter project.
 
 ## Getting Started
 
+## APK Demo:
+ - [Demo](https://github.com/AIabdoPr/Wallet-App/demo/app.apk)
+
 This project is a starting point for a Flutter application.
 
 A few resources to get you started if this is your first Flutter project:

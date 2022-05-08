@@ -1,16 +1,12 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
-import 'package:wallet_app/controllers/users.controller.dart';
-import 'package:wallet_app/models/user.model.dart';
-import 'package:wallet_app/pkgs/main.pkg.dart';
-import 'package:wallet_app/views/user_item.view.dart';
 
-import '../modes/ui_theme.mode.dart';
-import '../modes/users.mode.dart';
+import '../Consts/users.mode.dart';
+import '../controllers/users.controller.dart';
+import '../pkgs/size_config.pkg.dart';
 import '../values.dart';
+import '../views/user_item.view.dart';
 
 class UsersTab extends StatefulWidget {
   const UsersTab({Key? key}) : super(key: key);
@@ -50,22 +46,13 @@ class _UsersTabState extends State<UsersTab> {
             ),
             const Gap(20),
             Flexible(
-              child: StreamBuilder<Map<UsersMode, List<UserModel>>>(
-                stream: usersController.users.stream,
-                builder: (context, snapshot) {
-                  List<UserModel> _users = [];
-                  if (snapshot.hasData) {
-                    _users = snapshot.data![UsersMode.all]!;
-                  }
-                  return ListView.builder(
-                    itemCount: _users.length,
-                    itemBuilder: (context, index) => UserItemView(
-                      _users.elementAt(index),
-                    ),
-                  );
-                },
+              child: ListView.builder(
+                itemCount: usersController.users[UsersMode.all]!.length,
+                itemBuilder: (context, index) => UserItemView(
+                  usersController.users[UsersMode.all]!.elementAt(index),
+                ),
               ),
-            )
+            ),
           ],
         ),
       ),

@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
-import 'package:get/get.dart';
-import 'package:wallet_app/models/history.model.dart';
-import 'package:wallet_app/pages/history.page.dart';
 
+import '../Consts/history.mode.dart';
+import '../models/history.model.dart';
+import '../pages/history.page.dart';
+import '../pkgs/route.pkg.dart';
 import '../values.dart';
 import 'button.view.dart';
 
@@ -18,20 +19,17 @@ class HistoryItemView extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 20),
       backgroundColor: UIColors.primary.withOpacity(0.4),
       onPressed: () {
-        Get.to(
-          () => HistoryPage(history),
-          transition: Transition.size,
-          duration: const Duration(milliseconds: 350),
-        );
+        RoutePkg.to(HistoryPage.routeName, arguments: history);
       },
       child: Flex(
         direction: Axis.horizontal,
         children: [
           CircleAvatar(
-            backgroundColor:
-                history.action == "recive" ? UIColors.success : UIColors.danger,
+            backgroundColor: history.action == HistoryMode.recive
+                ? UIColors.success
+                : UIColors.danger,
             child: Icon(
-              history.action == "recive"
+              history.action == HistoryMode.recive
                   ? UIIcons.arrowDown2Bold
                   : UIIcons.arrowUp2Bold,
               color: UIThemeColors.icon,

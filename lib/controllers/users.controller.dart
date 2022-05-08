@@ -1,14 +1,16 @@
-// import 'package:dio/dio.dart' as _dio;
-import 'package:get/get.dart';
-import 'package:wallet_app/controllers/main.controller.dart';
-import 'package:wallet_app/models/user.model.dart';
-import 'package:wallet_app/pkgs/request.pkg.dart';
-import 'package:wallet_app/pkgs/response.pkg.dart';
+import 'dart:async';
 
-import '../modes/users.mode.dart';
+import 'package:get/get.dart';
+
+import '../Consts/users.mode.dart';
+import '../models/user.model.dart';
+import 'main.controller.dart';
+import 'socket.controller.dart';
 
 class UsersController extends GetxController {
   late MainController mainController;
+  late SocketController socketController;
+  StreamSubscription? cashStream;
 
   RxMap<UsersMode, List<UserModel>> users = <UsersMode, List<UserModel>>{
     UsersMode.all: [],
@@ -18,53 +20,76 @@ class UsersController extends GetxController {
   }.obs;
 
   @override
-  void onInit() {
-    super.onInit();
-    mainController = Get.find<MainController>();
+  void onClose() {
+    super.onClose();
+    if (cashStream != null) cashStream!.cancel();
+    socketController.socket.emit("stop-listen", "users");
   }
 
   @override
-  void onReady() {
+  onReady() {
     super.onReady();
-    startUsersListen();
+    mainController = Get.find<MainController>();
+    socketController = Get.find<SocketController>();
+    socketController.socket.emit("start-listen", "users");
+    socketController.socket.on(
+      'users-update',
+      (args) => onUsersUpdate(UsersResponse.fromList(args)),
+    );
+    cashStream = mainController.storageDatabase
+        .collection("users")
+        .stream()
+        .listen(loadCashUsers);
   }
 
-  startUsersListen() {
-    streamUsers().listen(onStreamRespnse);
-    streamUsers(rangeDate: UsersMode.today).listen(onStreamRespnse);
-    streamUsers(rangeDate: UsersMode.thisMonth).listen(onStreamRespnse);
-    streamUsers(rangeDate: UsersMode.thisYear).listen(onStreamRespnse);
-  }
-
-  Stream<UsersResponse> streamUsers({
-    UsersMode rangeDate = UsersMode.all,
-    Duration delayTime = const Duration(milliseconds: 500),
-  }) async* {
-    while (true) {
-      await Future.delayed(delayTime);
-      ResponsePkg<List?> response = await RequestPkg.send<List?>(
-        "user/load" + rangeDate.mode,
-        "get",
-        log: false,
-      );
-      if (response.success && response.value != null) {
-        List<UserModel> _users = [];
-        for (var userData in response.value!) {
-          _users.add(UserModel.fromJson(userData));
-        }
-        yield UsersResponse(_users, rangeDate);
+  onUsersUpdate(UsersResponse usersResponse) {
+    if (usersResponse.type == "delete") {
+      for (var userId in usersResponse.usersData) {
+        mainController.storageDatabase.collection("users").deleteItem(userId);
       }
+    } else {
+      mainController.storageDatabase
+          .collection("users")
+          .set(usersResponse.usersData);
     }
   }
 
-  onStreamRespnse(UsersResponse usersResponse) {
-    users[usersResponse.rangeDate] = usersResponse.users;
+  loadCashUsers(usersData) {
+    List<UserModel> _users = [];
+    List<UserModel> _dayUsers = [];
+    List<UserModel> _monthUsers = [];
+    List<UserModel> _yearUsers = [];
+    for (var userId in Map.from(usersData).keys) {
+      UserModel user = UserModel.fromJson(usersData[userId]);
+      _users.add(user);
+      if (user.createdAt.day == DateTime.now().day) {
+        _dayUsers.add(user);
+      }
+      if (user.createdAt.month == DateTime.now().month) {
+        _monthUsers.add(user);
+      }
+      if (user.createdAt.month == DateTime.now().month) {
+        _yearUsers.add(user);
+      }
+    }
+    users[UsersMode.all] = _users;
+    users[UsersMode.today] = _dayUsers;
+    users[UsersMode.thisMonth] = _monthUsers;
+    users[UsersMode.thisYear] = _yearUsers;
     update();
   }
 }
 
 class UsersResponse {
-  List<UserModel> users;
-  UsersMode rangeDate;
-  UsersResponse(this.users, this.rangeDate);
+  final String requestId, type;
+  final usersData;
+
+  UsersResponse(this.requestId, this.type, this.usersData);
+
+  UsersResponse.fromList(List args)
+      : requestId = args[0],
+        type = args[1],
+        usersData = args[2];
+
+  List get list => [requestId, type, usersData];
 }

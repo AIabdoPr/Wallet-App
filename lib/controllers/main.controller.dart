@@ -1,27 +1,22 @@
-import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
-import 'package:socket_io_client/socket_io_client.dart';
 import 'package:storage_database/storage_database.dart';
-import 'package:wallet_app/controllers/auth.controller.dart';
-import 'package:wallet_app/pages/home.page.dart';
+import 'package:wallet_app/values.dart';
 
 import '../models/user.model.dart';
-import '../modes/ui_theme.mode.dart';
-import '../pages/start.page.dart';
+import '../Consts/ui_theme.mode.dart';
+import 'auth.controller.dart';
+import 'history.controller.dart';
+import 'socket.controller.dart';
+import 'users.controller.dart';
 
 class MainController extends GetxController {
   late StorageDatabase storageDatabase;
   late AuthController authController;
-  // late SocketController socketController;
-  UserModel? get user => authController.currentUser;
 
-  Rx<UIThemeMode> themeMode = UIThemeMode.light.obs;
+  String serverIP = Consts.serverIP;
 
-  @override
-  onReady() {
-    super.onReady();
-    loading();
-  }
+  UserModel? get user => authController.currentUser.value;
+  Rx<UIThemeMode> themeMode = UIThemeMode.dark.obs;
 
   changeMode({UIThemeMode? uiThemeMode}) {
     UIThemeMode _uiThemeMode = uiThemeMode ??
@@ -33,22 +28,25 @@ class MainController extends GetxController {
     update();
   }
 
-  Future loading() async {
+  Future loading({String? ip}) async {
+    serverIP = ip ?? serverIP;
     await reloadStorageDatabase();
-
-    authController = Get.put<AuthController>(AuthController());
-    if (await authController.checkAuth()) {
-      // socketController = Get.put<SocketController>(SocketController(this));
-      // await socketController.init();
-      await Future.delayed(const Duration(seconds: 1));
-      return Get.to(() => const HomePage());
-    } else {
-      return Get.to(() => const StartPage());
-    }
+    Future.delayed(const Duration(seconds: 1));
+    authController = Get.find<AuthController>();
+    await authController.checkAuth();
   }
 
-  Future reload({bool clearStorage = false}) async {
-    await reloadStorageDatabase(init: false, clear: clearStorage);
+  initControllers() {
+    Get.put(SocketController()).connected.listen((_connected) {
+      authController.isOffline(!_connected);
+    });
+    Get.put(UsersController());
+    Get.put(HistoryController());
+  }
+
+  Future reload({bool clear = false}) async {
+    await reloadStorageDatabase(init: false, clear: clear);
+    await Get.find<SocketController>().disConnecting();
   }
 
   Future reloadStorageDatabase({bool init = true, bool clear = false}) async {

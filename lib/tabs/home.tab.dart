@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
-import 'package:wallet_app/controllers/history.controller.dart';
-import 'package:wallet_app/controllers/main.controller.dart';
-import 'package:wallet_app/controllers/users.controller.dart';
-import 'package:wallet_app/modes/history.mode.dart';
-import 'package:wallet_app/modes/users.mode.dart';
-import 'package:wallet_app/pkgs/main.pkg.dart';
-import 'package:wallet_app/views/text_edit.view.dart';
+
+import '../Consts/history.mode.dart';
+import '../Consts/users.mode.dart';
+import '../controllers/history.controller.dart';
+import '../controllers/main.controller.dart';
+import '../controllers/users.controller.dart';
+import '../pkgs/size_config.pkg.dart';
 import '../values.dart';
-import 'package:wallet_app/views/button.view.dart';
-import 'package:wallet_app/views/details_card.view.dart';
+import '../views/button.view.dart';
+import '../views/details_card.view.dart';
 
 class HomeTab extends StatefulWidget {
   const HomeTab({Key? key}) : super(key: key);
@@ -54,7 +54,10 @@ class _HomeTabState extends State<HomeTab> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        mainController.user!.username,
+                        // mainController.user != null
+                        //     ? mainController.user!.username
+                        //     :
+                        "username",
                         style: TextStyle(
                           color: UIThemeColors.text1,
                           fontSize: 16,
@@ -112,7 +115,7 @@ class _HomeTabState extends State<HomeTab> {
                           .historyItems[HistoryMode.send]!.length
                           .toString(),
                       "Recived actions:": historyController
-                          .historyItems[HistoryMode.recived]!.length
+                          .historyItems[HistoryMode.recive]!.length
                           .toString(),
                     },
                   ),
