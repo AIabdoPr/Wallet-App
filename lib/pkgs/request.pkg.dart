@@ -20,18 +20,14 @@ class RequestPkg {
   static String get _token =>
       _storageDatabase.collection("settings").get()["token"] ?? "";
 
-  static String getUrl(String apiUrl, {bool auth = true}) {
-    return (Consts.serverApiUrl.endsWith("/")
-            ? Consts.serverApiUrl
-            : Consts.serverApiUrl + "/") +
-        apiUrl +
-        (auth ? "?token=$_token" : "");
+  static String getUrl(String target, {bool auth = true}) {
+    return '${Consts.apiUrl}/$target${(auth ? "?token=$_token" : "")}';
   }
 
-  static Future<ResponsePkg<T>> send<T>(String apiUrl, String type,
+  static Future<ResponsePkg<T>> send<T>(String target, String type,
       {bool auth = true, Map? data, bool log = true}) async {
     String token = _token;
-    String url = getUrl(apiUrl, auth: auth);
+    String url = getUrl(target, auth: auth);
     if (log) print("resUrl: $url");
     if (auth && token.isEmpty) {
       return ResponsePkg<T>(false, "Invalid token");

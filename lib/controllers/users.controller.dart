@@ -43,7 +43,7 @@ class UsersController extends GetxController {
     while (true) {
       await Future.delayed(delayTime);
       ResponsePkg<List?> response = await RequestPkg.send<List?>(
-        "user/load",
+        "user/load" + rangeDate.mode,
         "get",
         log: false,
       );
